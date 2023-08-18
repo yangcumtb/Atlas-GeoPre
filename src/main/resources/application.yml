@@ -9,7 +9,8 @@ spring:
 server:
   port: 9070
 url:
-  tilePath: /Volumes/软件/tile/
+  tilePath: E:\\tile\\
+  cacheTilePath: E:\\tile\\0,E:\tile\1,E:\tile\2,E:\tile\3
 #gdal相关路径配置
 #GDAL:
 #  gdalpath: D:\ftp\tomcat\gdal

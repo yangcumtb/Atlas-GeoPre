@@ -1,5 +1,6 @@
 package com.example.atlasgeopre.service.impl;
 
+import com.example.atlasgeopre.common.config.CacheLoader;
 import com.example.atlasgeopre.common.config.GDALInitializer;
 import com.example.atlasgeopre.models.CoordinateParam;
 import com.example.atlasgeopre.models.ResampleParam;
@@ -371,33 +372,38 @@ public class GeoPreProServiceImpl implements GeoPreProService {
      */
     @Override
     public BufferedImage get3DTile(int z, int x, int y) {
-        if (z < 18) {
-            //18层级以下的数据调用GeographicTilingScheme格式的数据
-            File file = new File(tilePath + z + File.separator + x + File.separator + y + ".jpg");
-            if (file.exists()) {
-
-                try {
-                    return ImageIO.read(file);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
+        final String key = String.valueOf(z) + String.valueOf(x) + String.valueOf(y);
+        if (CacheLoader.tryGetCacheTile(key) == null) {
+            if (z < 18) {
+                //18层级以下的数据调用GeographicTilingScheme格式的数据
+                File file = new File(tilePath + z + File.separator + x + File.separator + y + ".jpg");
+                if (file.exists()) {
+                    try {
+                        System.out.println("文件io");
+                        return ImageIO.read(file);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return null;
+                    }
                 }
-            }
-        } else {
-            //18层级以上的调用91位图自定义原始瓦片数据，需要先做行列好转换
-            int[] cor = getChang91rowCol(x, y, z);
-            //File.separator表示文件层级的分割符号
-            File file = new File(tilePath + (z + 1) + File.separator + cor[0] + File.separator + cor[1] + ".jpg");
-            if (file.exists()) {
-                try {
-                    return ImageIO.read(file);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
+            } else {
+                //18层级以上的调用91位图自定义原始瓦片数据，需要先做行列号转换
+                int[] cor = getChang91rowCol(x, y, z);
+                //File.separator表示文件层级的分割符号
+                File file = new File(tilePath + (z + 1) + File.separator + cor[0] + File.separator + cor[1] + ".jpg");
+                if (file.exists()) {
+                    try {
+                        System.out.println("文件io");
+                        return ImageIO.read(file);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return null;
+                    }
                 }
             }
         }
-        return null;
+        System.out.println("从缓存池中取数据----------");
+        return CacheLoader.tryGetCacheTile(key);
     }
 
     /**
