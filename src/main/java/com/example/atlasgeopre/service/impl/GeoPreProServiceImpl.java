@@ -379,7 +379,6 @@ public class GeoPreProServiceImpl implements GeoPreProService {
                 File file = new File(tilePath + z + File.separator + x + File.separator + y + ".jpg");
                 if (file.exists()) {
                     try {
-                        System.out.println("文件io");
                         return ImageIO.read(file);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -393,7 +392,6 @@ public class GeoPreProServiceImpl implements GeoPreProService {
                 File file = new File(tilePath + (z + 1) + File.separator + cor[0] + File.separator + cor[1] + ".jpg");
                 if (file.exists()) {
                     try {
-                        System.out.println("文件io");
                         return ImageIO.read(file);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -402,7 +400,6 @@ public class GeoPreProServiceImpl implements GeoPreProService {
                 }
             }
         }
-        System.out.println("从缓存池中取数据----------");
         return CacheLoader.tryGetCacheTile(key);
     }
 
