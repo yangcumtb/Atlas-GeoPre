@@ -52,7 +52,7 @@
         <dependency>
             <groupId>org.gdal</groupId>
             <artifactId>gdal</artifactId>
-            <version>3.7.0</version>
+            <version>3.2.1</version>
         </dependency>
 
         <dependency>

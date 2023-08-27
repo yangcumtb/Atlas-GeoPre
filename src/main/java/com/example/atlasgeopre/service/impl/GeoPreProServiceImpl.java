@@ -379,13 +379,13 @@ public class GeoPreProServiceImpl implements GeoPreProService {
                 File file = new File(tilePath + z + File.separator + x + File.separator + y + ".jpg");
                 if (file.exists()) {
                     try {
-                        System.out.println("文件io");
                         return ImageIO.read(file);
                     } catch (Exception e) {
                         e.printStackTrace();
                         return null;
                     }
                 }
+                return null;
             } else {
                 //18层级以上的调用91位图自定义原始瓦片数据，需要先做行列号转换
                 int[] cor = getChang91rowCol(x, y, z);
@@ -393,16 +393,15 @@ public class GeoPreProServiceImpl implements GeoPreProService {
                 File file = new File(tilePath + (z + 1) + File.separator + cor[0] + File.separator + cor[1] + ".jpg");
                 if (file.exists()) {
                     try {
-                        System.out.println("文件io");
                         return ImageIO.read(file);
                     } catch (Exception e) {
                         e.printStackTrace();
                         return null;
                     }
                 }
+                return null;
             }
         }
-        System.out.println("从缓存池中取数据----------");
         return CacheLoader.tryGetCacheTile(key);
     }
 
