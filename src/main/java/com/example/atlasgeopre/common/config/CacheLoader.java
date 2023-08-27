@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 
 public class CacheLoader {
-    private static String cacheTilePath = "E:\\tile\\0,E:\\tile\\1,E:\\tile\\2,E:\\tile\\3,E:\\tile\\4,E:\\tile\\5,E:\\tile\\6";
 
     private static Cache<String, BufferedImage> cache = Caffeine.newBuilder()
             .maximumSize(500000) // 设置缓存的最大大小
@@ -28,7 +27,7 @@ public class CacheLoader {
     /**
      * 预缓存前0-8级别数据
      */
-    public static void preloadTilesToCache() throws IOException {
+    public static void preloadTilesToCache(String cacheTilePath) throws IOException {
         // 执行瓦片数据的缓存预加载过程
         // 例如，遍历需要预加载的瓦片文件，将文件加载到缓存池中
         String[] cacheTilePaths = cacheTilePath.split(",");
@@ -90,7 +89,7 @@ public class CacheLoader {
         String keyWithoutExtension = (dotIndex >= 0) ? fileName.substring(0, dotIndex) : fileName;
 
         // 分割路径
-        String[] parts = filePath.split("\\\\");
+        String[] parts = filePath.split(separator);
 
         String level = "";
         String column = "";
