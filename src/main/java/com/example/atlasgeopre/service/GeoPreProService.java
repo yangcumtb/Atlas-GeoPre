@@ -5,7 +5,9 @@ import com.example.atlasgeopre.models.ResampleParam;
 import com.example.atlasgeopre.models.TiffMetaData;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 import java.util.Map;
+
 public interface GeoPreProService {
 
     /**
@@ -42,6 +44,33 @@ public interface GeoPreProService {
      */
     Map<String, String> changeFormat(String filePath, String outputPath, String targetFormat);
 
+    /**
+     * 瓦片调用
+     *
+     * @param z
+     * @param x
+     * @param y
+     * @return
+     */
     BufferedImage get3DTile(int z, int x, int y);
+
+    /**
+     * 影像注记调用
+     *
+     * @param z
+     * @param x
+     * @param y
+     * @return
+     */
+    BufferedImage getImageNote(int z, int x, int y);
+
+
+    /**
+     * 获取切片文件Map
+     *
+     * @param area 区域的四至范围
+     * @return
+     */
+    HashMap<String, String> getTileFiles(double[] area, int level);
 
 }

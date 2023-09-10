@@ -33,28 +33,39 @@ public class CacheLoader {
         String[] cacheTilePaths = cacheTilePath.split(",");
         for (String cacheTile : cacheTilePaths) {
             File tileDirectory = new File(cacheTile);
-            preloadFiles(tileDirectory);
+            preloadFiles("tile", tileDirectory);
         }
     }
+
+    /**
+     * 缓存影像注记信息
+     *
+     * @param imageNotePath
+     */
+    public static void preloadImageNoteToCache(String imageNotePath) throws IOException {
+        File tileDirectory = new File(imageNotePath);
+        preloadFiles("imgaeNote", tileDirectory);
+    }
+
 
     /**
      * 将文件写入缓存
      *
      * @param directory 文件目录
      */
-    private static void preloadFiles(File directory) throws IOException {
+    private static void preloadFiles(String type, File directory) throws IOException {
         File[] files = directory.listFiles();
         if (files != null) {
             for (File file : files) {
                 if (file.isFile()) {
                     //文件的key用
-                    String key = extractKeyFromFilePath(file.getAbsolutePath());
+                    String key = extractKeyFromFilePath(type, file.getAbsolutePath());
                     BufferedImage fileData = ImageIO.read(file);
                     if (fileData != null) {
                         cache.put(key, fileData);
                     }
                 } else if (file.isDirectory()) {
-                    preloadFiles(file); // 递归处理子目录
+                    preloadFiles(type, file); // 递归处理子目录
                 }
             }
         }
@@ -76,7 +87,7 @@ public class CacheLoader {
      * @param filePath 文件路径
      * @return
      */
-    private static String extractKeyFromFilePath(String filePath) {
+    private static String extractKeyFromFilePath(String type, String filePath) {
         String separator = File.separator;
 
 
@@ -100,7 +111,7 @@ public class CacheLoader {
         }
 
         // 组合行列号，得到瓦片的key
-        return level + column + keyWithoutExtension;
+        return type + level + column + keyWithoutExtension;
     }
 
 }

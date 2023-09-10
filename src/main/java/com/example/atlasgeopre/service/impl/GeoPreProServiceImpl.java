@@ -33,6 +33,9 @@ public class GeoPreProServiceImpl implements GeoPreProService {
     @Value("${url.tilePath}")
     private String tilePath;
 
+    @Value("${url.notePath}")
+    private String notePath;
+
     /**
      * 获取tiff文件元数据
      *
@@ -431,5 +434,40 @@ public class GeoPreProServiceImpl implements GeoPreProService {
         int row = (int) Math.round((180.0 - yrow) * rows91 / 360.0);
 
         return new int[]{row, col};
+    }
+
+
+    /**
+     * 获取影像注记
+     *
+     * @param z
+     * @param x
+     * @param y
+     * @return
+     */
+    @Override
+    public BufferedImage getImageNote(int z, int x, int y) {
+        File file = new File(notePath + File.separator + z + File.separator + x + File.separator + y + ".png");
+        if (file.exists()) {
+            try {
+                return ImageIO.read(file);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取切片文件Map
+     *
+     * @param area 区域的四至范围
+     * @return
+     */
+    @Override
+    public HashMap<String, String> getTileFiles(double[] area, int level) {
+        int[] geTileArea = TIleToGeo.geTileArea(area, level);
+        return TIleToGeo.getTileFiles(geTileArea, tilePath);
     }
 }

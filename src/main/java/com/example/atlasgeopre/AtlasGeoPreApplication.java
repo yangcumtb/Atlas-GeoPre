@@ -15,6 +15,9 @@ public class AtlasGeoPreApplication implements ApplicationRunner {
     @Value("${url.cacheTilePath}")
     private String cacheTilePath;
 
+    @Value("${url.imageNotePath}")
+    private String imageNotePath;
+
     public static void main(String[] args) {
         SpringApplication.run(AtlasGeoPreApplication.class, args);
     }
@@ -25,6 +28,12 @@ public class AtlasGeoPreApplication implements ApplicationRunner {
          * 做瓦片数据的缓存工作
          */
         CacheLoader.preloadTilesToCache(cacheTilePath);
+
+        /**
+         * 影像注记的缓存
+         */
+        CacheLoader.preloadImageNoteToCache(imageNotePath);
+
     }
 
 }

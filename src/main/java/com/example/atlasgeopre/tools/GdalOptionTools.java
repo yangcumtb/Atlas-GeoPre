@@ -47,7 +47,7 @@ public class GdalOptionTools {
     public static void doChangeFormat(String inputPath, String outputPath, String imageName, String format, String suffix, ProgressReporter progressReporter) {
 
         GDALInitializer.initialize();
-        Dataset inputDataset = gdal.Open(inputPath, gdalconstConstants.GA_ReadOnly);
+        Dataset inputDataset = gdal.Open(inputPath);
         Band band = inputDataset.GetRasterBand(1);
         int dataType = band.getDataType();
 
@@ -112,7 +112,7 @@ public class GdalOptionTools {
             gdal.Translate(out, inputDataset, translateOptions, progressReporter);
         }
         inputDataset.delete();
-        gdal.GDALDestroyDriverManager();
+//        gdal.GDALDestroyDriverManager();
     }
 
 
@@ -127,7 +127,7 @@ public class GdalOptionTools {
      */
     public static void doChangeCoordinate(String inputPath, String outputPath, String sourceEPSG, String targetEPSG, ProgressReporter progressReporter) {
         GDALInitializer.initialize();
-        Dataset inputDataset = gdal.Open(inputPath, gdalconstConstants.GA_ReadOnly);
+        Dataset inputDataset = gdal.Open(inputPath);
 
         Dataset[] inputs = new Dataset[]{inputDataset};
 
@@ -142,7 +142,7 @@ public class GdalOptionTools {
         gdal.Warp(outputPath, inputs, warpOptions1, progressReporter);
 
         inputDataset.delete();
-        gdal.GDALDestroyDriverManager();
+//        gdal.GDALDestroyDriverManager();
     }
 
     /**
@@ -157,7 +157,7 @@ public class GdalOptionTools {
      */
     public static void doResampleOperation(String inputFile, String outputFile, int width, int height, String method, ProgressReporter progressReporter) {
         GDALInitializer.initialize();
-        Dataset inputDataset = gdal.Open(inputFile, gdalconstConstants.GA_ReadOnly);
+        Dataset inputDataset = gdal.Open(inputFile);
 
         Dataset[] inputs = new Dataset[]{inputDataset};
 
@@ -172,7 +172,7 @@ public class GdalOptionTools {
         gdal.Warp(outputFile, inputs, warpOptions1, progressReporter);
 
         inputDataset.delete();
-        gdal.GDALDestroyDriverManager();
+//        gdal.GDALDestroyDriverManager();
     }
 
 }

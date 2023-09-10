@@ -10,7 +10,9 @@ server:
   port: 9070
 url:
   tilePath: E:\\tile\\
+  notePath: F:\影像注记\imageNote
   cacheTilePath: E:\\tile\\0,E:\tile\1,E:\tile\2,E:\tile\3
+  imageNotePath: F:\影像注记\imageNote
 #gdal相关路径配置
 #GDAL:
 #  gdalpath: D:\ftp\tomcat\gdal

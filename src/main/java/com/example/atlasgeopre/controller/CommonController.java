@@ -163,34 +163,37 @@ public class CommonController {
                 .body(resource);
     }
 
-
-    @PostMapping("/cs")
-    public ResponseData cs() throws IOException, InterruptedException {
-        GDALInitializer.initialize();
-        Dataset hDataset = gdal.OpenShared("G:\\XQ\\fvc\\3.tif", gdalconstConstants.GA_ReadOnly);
-        System.out.println("zbx:" + hDataset.GetProjection());
-        System.out.println("成功");
-//       try {
-//           ProcessBuilder processBuilder = new ProcessBuilder("gdalinfo", "--version");
-//           Process process = processBuilder.start();
-//
-//           BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-//           String line;
-//           while ((line = reader.readLine()) != null) {
-//               System.out.println(line);
-//           }
-//
-//           int exitCode = process.waitFor();
-//           System.out.println("Exit Code: " + exitCode);
-//
-//       } catch (IOException | InterruptedException e) {
-//           e.printStackTrace();
-//       }
-        gdal.GDALDestroyDriverManager();
-        return ResponseData.success("成功");
+    @GetMapping("/api/imageNote")
+    @ApiOperation("影像注记")
+    public ResponseEntity<ByteArrayResource> getImageNote(
+            @RequestParam("col") Integer x,
+            @RequestParam("row") Integer y,
+            @RequestParam("lev") Integer z) throws IOException {
+        // 使用TileService类读取和渲染瓦片数据
+        BufferedImage image = geoPreProService.getImageNote(z, x, y);
+        // 将图像数据转换为字节数组
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", baos);
+        byte[] bytes = baos.toByteArray();
+        // 返回字节数组
+        ByteArrayResource resource = new ByteArrayResource(bytes);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE)
+                .contentLength(bytes.length)
+                .body(resource);
     }
 
-    public static void main(String[] args) {
+    @GetMapping("/getTileMaps")
+    @ApiOperation("获取瓦片列表")
+    public HashMap<String, String> getTileMaps(
+            @RequestParam("minX") Double minX,
+            @RequestParam("maxY") Double maxY,
+            @RequestParam("maxX") Double maxX,
+            @RequestParam("minY") Double minY,
+            @RequestParam("level") Integer level) {
+
+        return geoPreProService.getTileFiles(new double[]{minX, maxY, maxX, minY}, level);
 
     }
+
 }

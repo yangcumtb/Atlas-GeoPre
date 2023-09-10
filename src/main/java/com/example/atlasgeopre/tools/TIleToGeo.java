@@ -21,7 +21,7 @@ public class TIleToGeo {
             int minrow = (int) Math.round((90.0 - geoArea[1]) * Math.pow(2, level) / 180.0);
             int maxcol = mincol + (int) Math.round((geoArea[2] - geoArea[0]) * Math.pow(2, level + 1) / 360.0);
             int maxrow = minrow + (int) Math.round((geoArea[1] - geoArea[3]) * Math.pow(2, level) / 180.0);
-            return new int[]{mincol, maxcol, minrow, maxrow};
+            return new int[]{mincol, maxcol, minrow, maxrow, level};
 
         } else {
             int mincol = (int) Math.round((geoArea[0] + 360.0) * Math.pow(2, level + 1) / 360.0);
@@ -44,7 +44,10 @@ public class TIleToGeo {
         HashMap<String, String> tileFiles = new HashMap<>();
         for (int row = tileArea[2]; row < tileArea[3]; row++) {
             for (int col = tileArea[0]; col < tileArea[1]; col++) {
-                tileFiles.put(String.valueOf(col) + "_" + row, originPath + File.separator + col + File.separator + row + ".jpg");
+                File file = new File(originPath + File.separator + col + File.separator + row + ".jpg");
+                if (file.exists()) {
+                    tileFiles.put(String.valueOf(col) + "_" + row, originPath + File.separator + col + File.separator + row + ".jpg");
+                }
             }
         }
         return tileFiles;
