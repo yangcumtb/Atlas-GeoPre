@@ -64,7 +64,9 @@ public class GeoPreProServiceImpl implements GeoPreProService {
         tiffMetaData.setImageName(file.getName());
         Dataset imageSet = gdal.Open(filePath);
         //获取空间仿射变换参数
-        tiffMetaData.setAffineTransformation(imageSet.GetGeoTransform());
+        double[] geotransform = imageSet.GetGeoTransform();
+
+        tiffMetaData.setAffineTransformation(new double[]{geotransform[0], geotransform[3], geotransform[1], geotransform[5], geotransform[2], geotransform[4]});
 
 
         //获取图像的压缩方式
