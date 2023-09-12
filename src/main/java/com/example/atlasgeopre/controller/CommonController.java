@@ -27,6 +27,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/imagePreprocessing")
+@CrossOrigin("*")
 @Api("信息处理")
 public class CommonController {
 
@@ -169,9 +170,10 @@ public class CommonController {
     @GetMapping("/api/imageNote")
     @ApiOperation("影像注记")
     public ResponseEntity<ByteArrayResource> getImageNote(
-            @RequestParam("col") Integer x,
-            @RequestParam("row") Integer y,
-            @RequestParam("lev") Integer z) throws IOException {
+            @RequestParam("tilematrix") int z,
+            @RequestParam("tilerow") int y,
+            @RequestParam("tilecol") int x
+    ) throws IOException {
         // 使用TileService类读取和渲染瓦片数据
         BufferedImage image = geoPreProService.getImageNote(z, x, y);
         if (image == null) {
