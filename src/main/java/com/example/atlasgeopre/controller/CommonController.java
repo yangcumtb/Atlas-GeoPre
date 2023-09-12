@@ -151,6 +151,9 @@ public class CommonController {
             @RequestParam("lev") Integer z) throws IOException {
         // 使用TileService类读取和渲染瓦片数据
         BufferedImage image = geoPreProService.get3DTile(z, x, y);
+        if (image == null) {
+            return null;
+        }
         // 将图像数据转换为字节数组
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, "jpg", baos);
@@ -171,6 +174,9 @@ public class CommonController {
             @RequestParam("lev") Integer z) throws IOException {
         // 使用TileService类读取和渲染瓦片数据
         BufferedImage image = geoPreProService.getImageNote(z, x, y);
+        if (image == null) {
+            return null;
+        }
         // 将图像数据转换为字节数组
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, "png", baos);
