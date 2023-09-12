@@ -190,8 +190,8 @@ public class CommonController {
     }
 
     @GetMapping("/getTileMaps")
-    @ApiOperation("获取瓦片列表")
-    public HashMap<String, String> getTileMaps(
+    @ApiOperation("获取瓦片检索范围-{最小列号，最大列号，最小行号，最大行号，层级}")
+    public int[] getTileMaps(
             @RequestParam("minX") Double minX,
             @RequestParam("maxY") Double maxY,
             @RequestParam("maxX") Double maxX,

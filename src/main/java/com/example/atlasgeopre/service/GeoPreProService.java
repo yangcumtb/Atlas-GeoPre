@@ -71,6 +71,6 @@ public interface GeoPreProService {
      * @param area 区域的四至范围
      * @return
      */
-    HashMap<String, String> getTileFiles(double[] area, int level);
+    int[]  getTileFiles(double[] area, int level);
 
 }

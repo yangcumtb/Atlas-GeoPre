@@ -468,8 +468,7 @@ public class GeoPreProServiceImpl implements GeoPreProService {
      * @return
      */
     @Override
-    public HashMap<String, String> getTileFiles(double[] area, int level) {
-        int[] geTileArea = TIleToGeo.geTileArea(area, level);
-        return TIleToGeo.getTileFiles(geTileArea, tilePath);
+    public int[] getTileFiles(double[] area, int level) {
+        return TIleToGeo.geTileArea(area, level);
     }
 }
