@@ -7,6 +7,7 @@ import com.example.atlasgeopre.models.TiffMetaData;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public interface GeoPreProService {
 
@@ -71,6 +72,6 @@ public interface GeoPreProService {
      * @param area 区域的四至范围
      * @return
      */
-    int[]  getTileFiles(double[] area, int level);
+    ConcurrentHashMap<String, String> getTileFiles(double[] area, int level);
 
 }

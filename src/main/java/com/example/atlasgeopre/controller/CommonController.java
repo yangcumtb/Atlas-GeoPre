@@ -24,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/imagePreprocessing")
@@ -192,8 +193,8 @@ public class CommonController {
     }
 
     @GetMapping("/getTileMaps")
-    @ApiOperation("获取瓦片检索范围-{最小列号，最大列号，最小行号，最大行号，层级}")
-    public int[] getTileMaps(
+    @ApiOperation("获取瓦片检索范围-{最小x坐标，最大y坐标，最大x坐标，最小y坐标，层级}")
+    public ConcurrentHashMap<String, String> getTileMaps(
             @RequestParam("minX") Double minX,
             @RequestParam("maxY") Double maxY,
             @RequestParam("maxX") Double maxX,

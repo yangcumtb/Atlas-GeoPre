@@ -11,6 +11,9 @@ import org.gdal.gdal.Band;
 import org.gdal.gdal.Dataset;
 import org.gdal.gdal.gdal;
 import org.gdal.gdalconst.gdalconst;
+import org.gdal.ogr.Geometry;
+import org.gdal.ogr.ogr;
+import org.gdal.osr.CoordinateTransformation;
 import org.gdal.osr.SpatialReference;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,10 +25,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.ZipOutputStream;
 
 @Service
@@ -65,9 +66,36 @@ public class GeoPreProServiceImpl implements GeoPreProService {
         Dataset imageSet = gdal.Open(filePath);
         //获取空间仿射变换参数
         double[] geotransform = imageSet.GetGeoTransform();
+        System.out.println(Arrays.toString(geotransform));
+        //判断数据的坐标系是投影坐标系还是地理坐标系
+        if (imageSet.GetProjection().contains("PROJCS")) {
+            //投影坐标系需要做左上角顶点的坐标转换，以及分辨率转换
+            // 创建坐标转换对象
+            SpatialReference projSRS = new SpatialReference(imageSet.GetProjection());
+            SpatialReference latLonSRS = new SpatialReference();
+            latLonSRS.SetWellKnownGeogCS("WGS84"); // 设置地理坐标系为WGS 84
+            // 创建坐标转换
+            CoordinateTransformation transform = new CoordinateTransformation(projSRS, latLonSRS);
 
-        tiffMetaData.setAffineTransformation(new double[]{geotransform[0], geotransform[3], geotransform[1], geotransform[5], geotransform[2], geotransform[4]});
+            // 创建一个点要素
+            Geometry point = new Geometry(ogr.wkbPoint);
+            point.AddPoint(imageSet.GetGeoTransform()[0], imageSet.GetGeoTransform()[3]);
+            // 进行坐标转换
+            point.Transform(transform);
+            // 计算一度纬度的等效长度（以米为单位）
+            double oneDegreeLatLength = 111320.0; // 在赤道上的纬度
+            // 将空间分辨率从米转换为度
+            double resolutionInMetersx = geotransform[1]; // 图像的空间分辨率（以米为单位）
+            double resolutionInMetersy = geotransform[5]; // 图像的空间分辨率（以米为单位）
 
+            double resolutionInDegreesx = resolutionInMetersx / oneDegreeLatLength;
+            double resolutionInDegreesy = resolutionInMetersy / oneDegreeLatLength;
+
+            tiffMetaData.setAffineTransformation(new double[]{point.GetY(), point.GetX(), resolutionInDegreesx, resolutionInDegreesy, geotransform[2], geotransform[4]});
+
+        } else {
+            tiffMetaData.setAffineTransformation(new double[]{geotransform[0], geotransform[3], geotransform[1], geotransform[5], geotransform[2], geotransform[4]});
+        }
 
         //获取图像的压缩方式
         tiffMetaData.setCompressMode(imageSet.GetMetadataItem("COMPRESSION"));
@@ -468,7 +496,8 @@ public class GeoPreProServiceImpl implements GeoPreProService {
      * @return
      */
     @Override
-    public int[] getTileFiles(double[] area, int level) {
-        return TIleToGeo.geTileArea(area, level);
+    public ConcurrentHashMap<String, String> getTileFiles(double[] area, int level) {
+        int[] geTileArea = TIleToGeo.geTileArea(area, level);
+        return TileFileTask.getTileFiles3(geTileArea, tilePath);
     }
 }
