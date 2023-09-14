@@ -145,15 +145,15 @@ public class GeoPreProServiceImpl implements GeoPreProService {
         Dataset sourceDataset = gdal.Open(param.getFilePath(), gdalconst.GA_ReadOnly);
         SpatialReference spatialRef = new SpatialReference(sourceDataset.GetProjection());
         // 获取坐标系名称
+
         String coordinateSystem = spatialRef.GetAttrValue("DATUM");
         // 获取EPSG代码
-        String sourceEPSG = "EPSG:" + spatialRef.GetAttrValue("AUTHORITY", 1);
 
         //实例化exe文件的执行对象
 //        ExeExecution exeExecution = new ExeExecution();
 //        exeExecution.doChangeCoordinate(param.getFilePath(), param.getOutPath(), sourceEPSG, param.getTargetEPSG());
         ProgressReporter progressReporter = new ProgressReporter();
-        GdalOptionTools.doChangeCoordinate(param.getFilePath(), param.getOutPath(), sourceEPSG, param.getTargetEPSG(), progressReporter);
+        GdalOptionTools.doChangeCoordinate(param.getFilePath(), param.getOutPath(), sourceDataset.GetProjection(), param.getTargetEPSG(), progressReporter);
 
         if (progressReporter.getSchedule() >= 100) {
             Map<String, String> result = new HashMap<>();
