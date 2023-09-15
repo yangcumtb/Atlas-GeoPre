@@ -166,7 +166,7 @@ public class GeoPreProServiceImpl implements GeoPreProService {
                 result.put("newCoordinateSystem", "WGS_1984(WGS84坐标系)");
             }
             result.put("ouputPath", param.getOutPath());
-
+            sourceDataset.delete();
             return result;
         } else {
             return null;
@@ -313,10 +313,10 @@ public class GeoPreProServiceImpl implements GeoPreProService {
             BufferedImage frame = reader.read(frameIndex);
 
             if (targetFormat.equals("PNG")) {
-                File outputFile = new File(outputFilePath + "/" + fileName + "/" + fileName + "_Frame_" + frameIndex + ".png");
+                File outputFile = new File(outputFilePath + File.separator + fileName + File.separator + fileName + "_Frame_" + frameIndex + ".png");
                 ImageIO.write(frame, "png", outputFile);
             } else {
-                File outputFile = new File(outputFilePath + "/" + fileName + "/" + fileName + "_frame_" + frameIndex + ".jpg");
+                File outputFile = new File(outputFilePath + File.separator + fileName + File.separator + fileName + "_frame_" + frameIndex + ".jpg");
                 ImageIO.write(frame, "jpeg", outputFile);
             }
         }
