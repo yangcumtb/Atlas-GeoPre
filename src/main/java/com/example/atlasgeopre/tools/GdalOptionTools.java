@@ -142,6 +142,7 @@ public class GdalOptionTools {
         gdal.Warp(outputPath, inputs, warpOptions1, progressReporter);
 
         inputDataset.delete();
+        warpOptions1.delete();
 //        gdal.GDALDestroyDriverManager();
     }
 
@@ -171,6 +172,7 @@ public class GdalOptionTools {
         WarpOptions warpOptions1 = new WarpOptions(warpOptions);
         gdal.Warp(outputFile, inputs, warpOptions1, progressReporter);
 
+        warpOptions1.delete();
         inputDataset.delete();
 //        gdal.GDALDestroyDriverManager();
     }

@@ -77,6 +77,30 @@ public class CommonController {
     }
 
     /**
+     * 更换shp坐标系
+     *
+     * @param outPath    输出路径
+     * @param targetEPSG 目标epsg
+     * @return
+     */
+    @PostMapping("/shpProjecttion")
+    @ApiOperation("更换shp坐标系")
+    public ResponseData changeShpCoor(
+            @RequestParam("filePath") String filePath,
+            @RequestParam("outPath") String outPath,
+            @RequestParam("targetEPSG") String targetEPSG
+    ) {
+
+        CoordinateParam param = new CoordinateParam();
+        param.setFilePath(filePath);
+        param.setOutPath(outPath);
+        param.setTargetEPSG(targetEPSG);
+        Map<String, String> result = geoPreProService.changeShpCoordination(param);
+        return ResponseData.success(result);
+    }
+
+
+    /**
      * 重采样
      *
      * @param filePath       文件路径
@@ -194,14 +218,14 @@ public class CommonController {
 
     @GetMapping("/getTileMaps")
     @ApiOperation("获取瓦片检索范围-{最小x坐标，最大y坐标，最大x坐标，最小y坐标，层级}")
-    public ConcurrentHashMap<String, String> getTileMaps(
+    public ResponseData getTileMaps(
             @RequestParam("minX") Double minX,
             @RequestParam("maxY") Double maxY,
             @RequestParam("maxX") Double maxX,
             @RequestParam("minY") Double minY,
             @RequestParam("level") Integer level) {
 
-        return geoPreProService.getTileFiles(new double[]{minX, maxY, maxX, minY}, level);
+        return ResponseData.success(geoPreProService.getTileFiles(new double[]{minX, maxY, maxX, minY}, level));
 
     }
 

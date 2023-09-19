@@ -28,6 +28,14 @@ public interface GeoPreProService {
     Map<String, String> changeCoordination(CoordinateParam param);
 
     /**
+     * 更换shp坐标系
+     *
+     * @param param 坐标系参数
+     * @return 输出后文件路径
+     */
+    Map<String, String> changeShpCoordination(CoordinateParam param);
+
+    /**
      * 重采样
      *
      * @param param 重采样参数
@@ -72,6 +80,6 @@ public interface GeoPreProService {
      * @param area 区域的四至范围
      * @return
      */
-    ConcurrentHashMap<String, String> getTileFiles(double[] area, int level);
+    int[] getTileFiles(double[] area, int level);
 
 }

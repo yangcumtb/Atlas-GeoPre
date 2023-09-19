@@ -11,8 +11,7 @@ import org.gdal.gdal.Band;
 import org.gdal.gdal.Dataset;
 import org.gdal.gdal.gdal;
 import org.gdal.gdalconst.gdalconst;
-import org.gdal.ogr.Geometry;
-import org.gdal.ogr.ogr;
+import org.gdal.ogr.*;
 import org.gdal.osr.CoordinateTransformation;
 import org.gdal.osr.SpatialReference;
 import org.springframework.beans.factory.annotation.Value;
@@ -125,7 +124,7 @@ public class GeoPreProServiceImpl implements GeoPreProService {
                 tiffMetaData.setProjection("China_2000");
                 break;
         }
-
+        spatialRef.delete();
         return tiffMetaData;
     }
 
@@ -154,7 +153,8 @@ public class GeoPreProServiceImpl implements GeoPreProService {
 //        exeExecution.doChangeCoordinate(param.getFilePath(), param.getOutPath(), sourceEPSG, param.getTargetEPSG());
         ProgressReporter progressReporter = new ProgressReporter();
         GdalOptionTools.doChangeCoordinate(param.getFilePath(), param.getOutPath(), sourceDataset.GetProjection(), param.getTargetEPSG(), progressReporter);
-
+        spatialRef.delete();
+        sourceDataset.delete();
         if (progressReporter.getSchedule() >= 100) {
             Map<String, String> result = new HashMap<>();
             result.put("sourceCoordinateSystem", coordinateSystem);
@@ -166,12 +166,87 @@ public class GeoPreProServiceImpl implements GeoPreProService {
                 result.put("newCoordinateSystem", "WGS_1984(WGS84坐标系)");
             }
             result.put("ouputPath", param.getOutPath());
-            sourceDataset.delete();
             return result;
         } else {
             return null;
         }
     }
+
+    /**
+     * 更换shp坐标系
+     *
+     * @param param 坐标系参数
+     * @return 输出后文件路径
+     */
+    @Override
+    public Map<String, String> changeShpCoordination(CoordinateParam param) {
+        GDALInitializer.initialize();
+        // 为了支持中文路径，请添加下面这句代码
+        gdal.SetConfigOption("GDAL_FILENAME_IS_UTF8", "YES");
+        // 为了使属性表字段支持中文，请添加下面这句
+        gdal.SetConfigOption("SHAPE_ENCODING", "");
+        DataSource shapefileDataset = ogr.Open(param.getFilePath());
+        if (shapefileDataset == null) {
+            System.err.println("Failed to open Shapefile.");
+            return null;
+        }
+        // 指定新Shapefile文件的路径
+        String newShapefilePath = param.getOutPath();
+        SpatialReference targetSRS = new SpatialReference();
+        targetSRS.ImportFromEPSG(32616); // EPSG code for WGS84 (地理坐标系)
+        // 创建OGR驱动对象
+        Driver driver = ogr.GetDriverByName("ESRI Shapefile");
+
+        // 创建新的数据源
+        DataSource newDataSource = driver.CreateDataSource(newShapefilePath);
+
+
+        Map<String, String> result = new HashMap<>();
+
+        // 获取Shapefile的图层
+        int layerCount = shapefileDataset.GetLayerCount();
+        for (int layerindex = 0; layerindex < layerCount; layerindex++) {
+            // 获取第一个图层
+            Layer layer = shapefileDataset.GetLayerByIndex(layerindex);
+
+            // 创建新的图层
+            Layer newLayer = newDataSource.CreateLayer(layer.GetName(), layer.GetSpatialRef(), ogr.wkbPolygon);
+            // 创建源和目标坐标系
+            SpatialReference sourceSRS = new SpatialReference(layer.GetSpatialRef().ExportToWkt());
+            result.put("sourceCoordinateSystem", layer.GetSpatialRef().ExportToWkt());
+            result.put("newCoordinateSystem", "WGS_1984(WGS84坐标系)");
+            // 创建坐标系转换对象
+            CoordinateTransformation coordinateTransformation = new org.gdal.osr.CoordinateTransformation(sourceSRS, targetSRS);
+            // 遍历图层中的要素并进行坐标转换
+            layer.ResetReading();
+            org.gdal.ogr.Feature feature;
+            while ((feature = layer.GetNextFeature()) != null) {
+                Geometry geometry = feature.GetGeometryRef();
+                geometry.TransformTo(targetSRS);
+                // 创建新要素
+                org.gdal.ogr.Feature newFeature = new org.gdal.ogr.Feature(newLayer.GetLayerDefn());
+                // 设置新要素的几何信息
+                newFeature.SetGeometry(geometry);
+                // 写入新要素到新图层
+                newLayer.CreateFeature(newFeature);
+                // 释放资源
+                geometry.delete();
+                newFeature.delete();
+                feature.delete();
+            }
+            // 清理资源
+            sourceSRS.delete();
+            layer.delete();
+            newLayer.delete();
+            coordinateTransformation.delete();
+        }
+        // 关闭数据集
+        shapefileDataset.delete();
+        result.put("ouputPath", param.getOutPath());
+        newDataSource.delete();
+        return result;
+    }
+
 
     /**
      * 重采样
@@ -303,7 +378,7 @@ public class GeoPreProServiceImpl implements GeoPreProService {
             numFrames = reader.getNumImages(true);
         }
         // 确保父路径存在
-        File outParent = new File(outputFilePath + "/" + fileName);
+        File outParent = new File(outputFilePath + File.separator + fileName);
         if (!outParent.exists()) {
             outParent.mkdir();
         }
@@ -323,13 +398,13 @@ public class GeoPreProServiceImpl implements GeoPreProService {
 
         //将输出的文件打包成压缩包
         try {
-            FileOutputStream fos = new FileOutputStream(outputFilePath + "/" + fileName + ".zip");
+            FileOutputStream fos = new FileOutputStream(outputFilePath + File.separator + fileName + ".zip");
             ZipOutputStream zos = new ZipOutputStream(fos);
-            File directory = new File(outputFilePath + "/" + fileName);
+            File directory = new File(outputFilePath + File.separator + fileName);
             ZipFileTools.compressDirectory(directory, zos);
             zos.close();
             fos.close();
-            System.out.println(outputFilePath + "/" + fileName + ".zip");
+            System.out.println(outputFilePath + File.separator + fileName + ".zip");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -339,7 +414,7 @@ public class GeoPreProServiceImpl implements GeoPreProService {
             reader.dispose();
         }
         input.close();
-        return outputFilePath + "/" + fileName + ".zip";
+        return outputFilePath + File.separator + fileName + ".zip";
     }
 
     /**
@@ -356,7 +431,7 @@ public class GeoPreProServiceImpl implements GeoPreProService {
         File file = new File(filePath);
         int dotIndex = file.getName().lastIndexOf('.');
         String fileName = file.getName().substring(0, dotIndex);
-        File outParent = new File(outputPath + "/" + fileName);
+        File outParent = new File(outputPath + File.separator + fileName);
         if (!outParent.exists()) {
             outParent.mkdir();
         }
@@ -376,19 +451,19 @@ public class GeoPreProServiceImpl implements GeoPreProService {
         if (progressReporter.getSchedule() >= 100) {
             //将输出的文件打包成压缩包
             try {
-                FileOutputStream fos = new FileOutputStream(outputPath + "/" + fileName + ".zip");
+                FileOutputStream fos = new FileOutputStream(outputPath + File.separator + fileName + ".zip");
                 ZipOutputStream zos = new ZipOutputStream(fos);
-                File directory = new File(outputPath + "/" + fileName);
+                File directory = new File(outputPath + File.separator + fileName);
                 ZipFileTools.compressDirectory(directory, zos);
                 zos.close();
                 fos.close();
-                System.out.println(outputPath + "/" + fileName + ".zip");
+                System.out.println(outputPath + File.separator + fileName + ".zip");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
             res.put("targetFormat", targetFormat);
-            res.put("outputPath", outputPath + "/" + fileName + ".zip");
+            res.put("outputPath", outputPath + File.separator + fileName + ".zip");
             return res;
         } else {
             return null;
@@ -496,8 +571,8 @@ public class GeoPreProServiceImpl implements GeoPreProService {
      * @return
      */
     @Override
-    public ConcurrentHashMap<String, String> getTileFiles(double[] area, int level) {
-        int[] geTileArea = TIleToGeo.geTileArea(area, level);
-        return TileFileTask.getTileFiles3(geTileArea, tilePath);
+    public int[] getTileFiles(double[] area, int level) {
+        //        return TileFileTask.getTileFiles3(geTileArea, tilePath);
+        return TIleToGeo.geTileArea(area, level);
     }
 }
