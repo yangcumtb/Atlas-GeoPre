@@ -1,6 +1,7 @@
 package com.example.atlasgeopre.tools;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -82,7 +83,7 @@ public class TIleToGeo {
             }
             return res;
         }
-        double ratio = (180.0 / n);
+        double ratio = (360.0 / n);
         double piexlRatio = ratio / 256;
         double y = 180.0 - ratio * row;
         double miny = 180.0 - ratio * (row + 1);
@@ -114,8 +115,8 @@ public class TIleToGeo {
 //            System.out.println(key + ": " + value);
 //        }
         double[][] c = new double[][]{{29.13830492, 179.18715234}, {48.90781826, 177.66256281}, {50.38411108, 196.80580766}, {30.61459774, 198.33039719}};
-        double[][] a = getGeoAreaFromtile(428246, 256318, 18, c);
-        System.out.println(a.toString());
+        double[][] a = getGeoAreaFromtile(439369, 225613, 19, c);
+        System.out.println(Arrays.deepToString(a));
     }
 
 
