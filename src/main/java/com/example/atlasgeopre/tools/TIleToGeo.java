@@ -17,18 +17,18 @@ public class TIleToGeo {
      */
     public static int[] geTileArea(double[] geoArea, int level) {
         if (level < 18) {
-            int mincol = (int) Math.round((geoArea[0] + 360.0) * Math.pow(2, level + 1) / 360.0);
+            int mincol = (int) Math.round((geoArea[0] + 180.0) * Math.pow(2, level + 1) / 360.0);
             int minrow = (int) Math.round((90.0 - geoArea[1]) * Math.pow(2, level) / 180.0);
             int maxcol = mincol + (int) Math.round((geoArea[2] - geoArea[0]) * Math.pow(2, level + 1) / 360.0);
             int maxrow = minrow + (int) Math.round((geoArea[1] - geoArea[3]) * Math.pow(2, level) / 180.0);
             return new int[]{mincol, maxcol, minrow, maxrow, level};
 
         } else {
-            int mincol = (int) Math.round((geoArea[0] + 360.0) * Math.pow(2, level + 1) / 360.0);
-            int minrow = (int) Math.round((180.0 - geoArea[1]) * Math.pow(2, level + 1) / 360.0);
-            int maxcol = mincol + (int) Math.round((geoArea[2] - geoArea[0]) * Math.pow(2, level + 1) / 360.0);
-            int maxrow = minrow + (int) Math.round((geoArea[1] - geoArea[3]) * Math.pow(2, level + 1) / 360.0);
-            return new int[]{mincol, maxcol, minrow, maxrow, level + 1};
+            int mincol = (int) Math.round((geoArea[0] + 180.0) * Math.pow(2, level) / 360.0);
+            int minrow = (int) Math.round((180.0 - geoArea[1]) * Math.pow(2, level) / 360.0);
+            int maxcol = mincol + (int) Math.round((geoArea[2] - geoArea[0]) * Math.pow(2, level) / 360.0);
+            int maxrow = minrow + (int) Math.round((geoArea[1] - geoArea[3]) * Math.pow(2, level) / 360.0);
+            return new int[]{mincol, maxcol, minrow, maxrow, level};
         }
     }
 

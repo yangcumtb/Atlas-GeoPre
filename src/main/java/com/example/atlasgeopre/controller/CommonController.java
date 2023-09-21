@@ -217,7 +217,7 @@ public class CommonController {
     }
 
     @GetMapping("/getTileMaps")
-    @ApiOperation("获取瓦片检索范围-{最小x坐标，最大y坐标，最大x坐标，最小y坐标，层级}")
+    @ApiOperation("获取瓦片检索范围-{最小x坐标，最大y坐标，最大x坐标，最小y坐标，层级(17或者19)}")
     public ResponseData getTileMaps(
             @RequestParam("minX") Double minX,
             @RequestParam("maxY") Double maxY,
