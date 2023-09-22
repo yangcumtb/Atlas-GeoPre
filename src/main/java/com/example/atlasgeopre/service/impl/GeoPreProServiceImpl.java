@@ -110,6 +110,10 @@ public class GeoPreProServiceImpl implements GeoPreProService {
         SpatialReference spatialRef = new SpatialReference(imageSet.GetProjection());
         // 获取EPSG代码
         String epsgCode = spatialRef.GetAttrValue("AUTHORITY", 1);
+        if (epsgCode == null) {
+            spatialRef.delete();
+            return tiffMetaData;
+        }
         //获取epsg代码
         tiffMetaData.setEpsg("EPSG:" + epsgCode);
         //获取元数据坐标系
