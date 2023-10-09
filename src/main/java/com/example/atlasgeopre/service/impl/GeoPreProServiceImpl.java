@@ -33,6 +33,12 @@ public class GeoPreProServiceImpl implements GeoPreProService {
     @Value("${url.tilePath}")
     private String tilePath;
 
+    @Value("${url.tilePath2}")
+    private String tilePath2;
+
+    @Value("${url.tilePath3}")
+    private String tilePath3;
+
     @Value("${url.notePath}")
     private String notePath;
 
@@ -501,8 +507,10 @@ public class GeoPreProServiceImpl implements GeoPreProService {
             } else {
                 //18层级以上的调用91位图自定义原始瓦片数据，需要先做行列号转换
                 int[] cor = getChang91rowCol(x, y, z);
+                //由于数据分盘符挂载，需要确认根目录路径
+                String finaltilePath = get19TilePath(cor);
                 //File.separator表示文件层级的分割符号
-                File file = new File(tilePath + (z + 1) + File.separator + cor[0] + File.separator + cor[1] + ".jpg");
+                File file = new File(finaltilePath + File.separator + (z + 1) + File.separator + cor[0] + File.separator + cor[1] + ".jpg");
                 if (file.exists()) {
                     try {
                         return ImageIO.read(file);
@@ -545,13 +553,31 @@ public class GeoPreProServiceImpl implements GeoPreProService {
         return new int[]{row, col};
     }
 
+    /**
+     * 19级别瓦片多目录判断根目录
+     *
+     * @param cor 行列号
+     * @return
+     */
+    public String get19TilePath(int[] cor) {
+        if ((cor[0] >= 192238 && cor[0] <= 209715 && cor[1] >= 78643 && cor[1] <= 166024) ||
+                (cor[0] >= 227191 && cor[0] <= 233017 && cor[1] >= 393216 && cor[1] <= 419431)) {
+            return tilePath3;
+        } else if ((cor[0] >= 250493 && cor[0] <= 262144 && cor[1] >= 393216 && cor[1] <= 454383) ||
+                (cor[0] >= 419431 && cor[0] <= 489336 && cor[1] >= 273794 && cor[1] <= 326224)) {
+            return tilePath2;
+        } else {
+            return tilePath; // 不在任何区间范围内
+        }
+    }
+
 
     /**
      * 获取影像注记
      *
-     * @param z
-     * @param x
-     * @param y
+     * @param z 层级
+     * @param x 列号
+     * @param y 行号
      * @return
      */
     @Override

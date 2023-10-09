@@ -9,10 +9,15 @@ spring:
 server:
   port: 9070
 url:
-  tilePath: E:\\tile\\
-  notePath: F:\影像注记\imageNote
-  cacheTilePath: E:\\tile\\0,E:\tile\1,E:\tile\2,E:\tile\3
-  imageNotePath: F:\影像注记\imageNote
+  #tilepath 0-17级别数据，以及台湾地区0.3m数据（91位图切分方式）
+  tilePath: D:\tileP\
+  #  原盘为新加卷，挂载数据为：行250493-262144；列393216-454383  &  行419431-489336；列273794-326224
+  tilePath2:
+  #  原盘为甲方2，挂载数据为：行192238-209715；列78643-166024  &  行227191-233017；列393216-419431
+  tilePath3:
+  notePath:
+  cacheTilePath:
+  imageNotePath:
 #gdal相关路径配置
 #GDAL:
 #  gdalpath: D:\ftp\tomcat\gdal
