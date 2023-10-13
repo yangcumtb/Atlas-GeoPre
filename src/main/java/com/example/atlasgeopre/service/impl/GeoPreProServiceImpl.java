@@ -494,7 +494,7 @@ public class GeoPreProServiceImpl implements GeoPreProService {
         if (CacheLoader.tryGetCacheTile(key) == null) {
             if (z < 18) {
                 //18层级以下的数据调用GeographicTilingScheme格式的数据
-                File file = new File(tilePath + z + File.separator + x + File.separator + y + ".jpg");
+                File file = new File(tilePath + File.separator + z + File.separator + x + File.separator + y + ".jpg");
                 if (file.exists()) {
                     try {
                         return ImageIO.read(file);
@@ -564,7 +564,7 @@ public class GeoPreProServiceImpl implements GeoPreProService {
                 (cor[0] >= 227191 && cor[0] <= 233017 && cor[1] >= 393216 && cor[1] <= 419431)) {
             return tilePath3;
         } else if ((cor[0] >= 250493 && cor[0] <= 262144 && cor[1] >= 393216 && cor[1] <= 454383) ||
-                (cor[0] >= 419431 && cor[0] <= 489336 && cor[1] >= 273794 && cor[1] <= 326224)) {
+                (cor[0] >= 273794 && cor[0] <= 326224 && cor[1] >= 419431 && cor[1] <= 489336)) {
             return tilePath2;
         } else {
             return tilePath; // 不在任何区间范围内
