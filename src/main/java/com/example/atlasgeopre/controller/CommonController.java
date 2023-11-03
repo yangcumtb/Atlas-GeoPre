@@ -229,4 +229,16 @@ public class CommonController {
 
     }
 
+
+    @PostMapping("/pixelMask")
+    @ApiOperation("像素掩膜")
+    public ResponseData pixelMask(
+            @RequestParam("filePath") String filePath,
+            @RequestParam("outPath") String outPath,
+            @RequestParam("shpfiles") String shpfiles
+    ) {
+        geoPreProService.pixelMask(filePath, outPath, shpfiles);
+        return ResponseData.success();
+    }
+
 }

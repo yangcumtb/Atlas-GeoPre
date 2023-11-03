@@ -82,4 +82,12 @@ public interface GeoPreProService {
      */
     int[] getTileFiles(double[] area, int level);
 
+    /**
+     * 根据掩膜shp文件来处理
+     *
+     * @param inputFile 输入文件
+     * @param maskfiles 掩膜文件
+     */
+    boolean pixelMask(String inputFile, String outfile, String maskfiles);
+
 }

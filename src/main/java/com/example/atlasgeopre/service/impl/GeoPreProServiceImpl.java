@@ -11,6 +11,7 @@ import org.gdal.gdal.Band;
 import org.gdal.gdal.Dataset;
 import org.gdal.gdal.gdal;
 import org.gdal.gdalconst.gdalconst;
+import org.gdal.gdalconst.gdalconstConstants;
 import org.gdal.ogr.*;
 import org.gdal.osr.CoordinateTransformation;
 import org.gdal.osr.SpatialReference;
@@ -604,5 +605,26 @@ public class GeoPreProServiceImpl implements GeoPreProService {
     public int[] getTileFiles(double[] area, int level) {
         //        return TileFileTask.getTileFiles3(geTileArea, tilePath);
         return TIleToGeo.geTileArea(area, level);
+    }
+
+
+    /**
+     * 根据掩膜shp文件来处理
+     *
+     * @param inputFile 输入文件
+     * @param outfile   输出文件
+     * @param maskfiles 掩膜文件
+     * @return
+     */
+    @Override
+    public boolean pixelMask(String inputFile, String outfile, String maskfiles) {
+        //maskfiles为多个shp文件，用“，”隔开
+        String[] shpfiles = maskfiles.split(",");
+        String outboxshp = ExeExecution.getOutBox(inputFile);
+
+        String mergeshp = GdalOptionTools.mergeShp(shpfiles);
+        GdalOptionTools.getMaskArea(outboxshp, mergeshp, mergeshp);
+        ExeExecution.pixelMask(inputFile, outfile, mergeshp);
+        return true;
     }
 }

@@ -2,9 +2,19 @@ package com.example.atlasgeopre.tools;
 
 import com.example.atlasgeopre.common.config.GDALInitializer;
 import org.gdal.gdal.*;
+import org.gdal.gdal.Driver;
 import org.gdal.gdalconst.gdalconstConstants;
+import org.gdal.ogr.*;
+import org.gdal.osr.SpatialReference;
+import org.springframework.beans.factory.annotation.Value;
 
+import java.awt.*;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Vector;
+
+import static org.gdal.ogr.ogrConstants.wkbPolygon;
 
 /**
  * 通过Vector构建命令。但对bil等envi格式的文件不支持
@@ -33,6 +43,8 @@ import java.util.Vector;
 
 
 public class GdalOptionTools {
+
+    public static String gdalCachPath = "/Users/yang/Documents/xxx项目预处理/data/mask/roadshp/roadshp";
 
     /**
      * 格式转换
@@ -177,4 +189,131 @@ public class GdalOptionTools {
 //        gdal.GDALDestroyDriverManager();
     }
 
+    /**
+     * 像素掩膜
+     *
+     * @param inputfile        输入文件
+     * @param outputFile       输出文件
+     * @param shpfile          shp文件
+     * @param progressReporter 回调
+     */
+    public static void pixelMask(String inputfile, String outputFile, String shpfile, ProgressReporter progressReporter) {
+        GDALInitializer.initialize();
+        Dataset inputDataset = gdal.Open(inputfile);
+        Dataset[] inputs = new Dataset[]{inputDataset};
+        Vector warpOptions = new Vector();
+        warpOptions.add("-cutline");
+        warpOptions.add(shpfile);
+        warpOptions.add("-dstnodata");
+        warpOptions.add("0");
+        warpOptions.add("-dstalpha");
+        warpOptions.add("-of");
+        warpOptions.add("GTiff");
+        warpOptions.add("-overwrite");
+        WarpOptions warpOptions1 = new WarpOptions(warpOptions);
+        gdal.Warp(outputFile, inputs, warpOptions1, progressReporter);
+        warpOptions1.delete();
+        inputDataset.delete();
+    }
+
+    /**
+     * 反算掩膜区域
+     *
+     * @param boxAreaPath   外部
+     * @param innerAreaPath 内部
+     * @param outPath       输出
+     */
+    public static void getMaskArea(String boxAreaPath, String innerAreaPath, String outPath) {
+        GDALInitializer.initializeogr();
+
+        // 打开第一个Shapefile
+        DataSource dataSource1 = ogr.Open(innerAreaPath);
+
+        // 打开第二个Shapefile
+        DataSource dataSource2 = ogr.Open(boxAreaPath);
+
+        // 获取第一个Shapefile的第一个图层
+        Layer layer1 = dataSource1.GetLayer(0);
+
+        // 获取第二个Shapefile的第一个图层
+        Layer layer2 = dataSource2.GetLayer(0);
+
+        // 创建一个新的数据源和图层用于存储交集结果
+        DataSource outputDataSource = ogr.GetDriverByName("ESRI Shapefile").CreateDataSource(outPath);
+        Layer outputLayer = outputDataSource.CreateLayer("intersection", null);
+
+        // 进行两个Shapefile的交集操作
+        layer1.SymDifference(layer2, outputLayer);
+
+        // 释放资源
+        dataSource1.delete();
+        dataSource2.delete();
+        outputDataSource.delete();
+    }
+
+    /**
+     * gdalCachPath中生成合并文件
+     *
+     * @param shpfiles
+     * @return
+     */
+    public static String mergeShp(String[] shpfiles) {
+        try {
+            // 获取当前日期
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+            String currentDate = dateFormat.format(new Date());
+            // 创建日期路径
+            String datePath = gdalCachPath + File.separator + currentDate;
+            File dateDirectory = new File(datePath);
+            if (!dateDirectory.exists()) {
+                dateDirectory.mkdirs();
+            }
+            // 文件名以"merge"为开始，后面加递增序号
+            int sequence = 1;
+            String fileName = "merge";  // 初始文件名
+            String filePath = datePath + File.separator + fileName + ".shp";
+
+            // 检查文件是否存在，如果存在则增加递增序号
+            while (new File(filePath).exists()) {
+                sequence++;
+                fileName = "merge(" + sequence + ")";
+                filePath = datePath + File.separator + fileName + ".shp";
+            }
+            SpatialReference spatialReference = new SpatialReference();
+            spatialReference.ImportFromEPSG(4326);
+
+            DataSource outputDataSource = ogr.GetDriverByName("ESRI Shapefile").CreateDataSource(filePath);
+            Layer outputLayer = outputDataSource.CreateLayer("intersection", spatialReference);
+
+
+            Geometry unionGeometry = new Geometry(wkbPolygon);  // 用于存储联合后的几何对象
+
+            for (int i = 0; i < shpfiles.length; i++) {
+                DataSource dataSource2 = ogr.Open(shpfiles[i]);
+                Layer layer2 = dataSource2.GetLayer(0);
+                // 遍历源图层的所有要素，并进行联合操作
+                Feature sourceFeature;
+                while ((sourceFeature = layer2.GetNextFeature()) != null) {
+                    Geometry sourceGeometry = sourceFeature.GetGeometryRef();
+
+                    // 将每个要素的几何对象与之前的联合几何对象进行联合
+                    unionGeometry = unionGeometry.Union(sourceGeometry);
+                }
+                // 创建一个新要素，并将联合后的几何对象添加到输出图层
+                layer2.delete();
+                dataSource2.delete();
+            }
+            Feature outputFeature = new Feature(outputLayer.GetLayerDefn());
+            outputFeature.SetGeometry(unionGeometry);
+            outputLayer.CreateFeature(outputFeature);
+            outputLayer.delete();
+            outputLayer.delete();
+            outputDataSource.delete();
+            return filePath;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

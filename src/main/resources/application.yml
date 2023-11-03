@@ -18,21 +18,4 @@ url:
   notePath: /data/data
   cacheTilePath:
   imageNotePath:
-#gdal相关路径配置
-#GDAL:
-#  gdalpath: D:\ftp\tomcat\gdal
-#  gdalData: D:\ftp\tomcat\gdal\gdal-data
-#  gdalplugins: D:\ftp\tomcat\gdal\bin\gdal\plugins
-#  proj_lib: D:\ftp\tomcat\gdal\bin\proj6\share
-#  path: D:\ftp\tomcat\gdal\bin\gdal\apps
-#  gdalpath: E:\soft\gdal\gdal
-#  gdalData: E:\soft\gdal\gdal-data
-#  gdalplugins: E:\soft\gdal\bin\gdal\plugins
-#  proj_lib: E:\soft\gdal\bin\proj6\share
-#  path: E:\soft\gdal\bin\gdal\apps
-
-#mybatis:
-#  type-aliases-package: com.atlas.atlasmian.bean
-#  mapper-locations: classpath:mybatis/*/*Mapper.xml
-
-
+  gdalCachPath: /Users/yang/Documents/xxx项目预处理/data/mask/roadshp/roadshp

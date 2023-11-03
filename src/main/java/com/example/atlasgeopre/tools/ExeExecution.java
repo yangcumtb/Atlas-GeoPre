@@ -1,13 +1,15 @@
 package com.example.atlasgeopre.tools;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 
 
 public class ExeExecution {
+
+    public static String gdalCachPath = "/Users/yang/Documents/xxx项目预处理/data/mask/roadshp/roadshp";
+
 
     /**
      * @param inputFile  输入文件
@@ -238,4 +240,96 @@ public class ExeExecution {
         }
         return output.toString();
     }
+
+    public static String getOutBox(String inputfile) {
+        // 获取当前日期
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        String currentDate = dateFormat.format(new Date());
+        // 创建日期路径
+        String datePath = gdalCachPath + File.separator + currentDate;
+        File dateDirectory = new File(datePath);
+        if (!dateDirectory.exists()) {
+            dateDirectory.mkdirs();
+        }
+        // 文件名以"merge"为开始，后面加递增序号
+        int sequence = 1;
+        String fileName = "outbox";  // 初始文件名
+        String filePath = datePath + File.separator + fileName + ".shp";
+
+        // 检查文件是否存在，如果存在则增加递增序号
+        while (new File(filePath).exists()) {
+            sequence++;
+            fileName = "outbox(" + sequence + ")";
+            filePath = datePath + File.separator + fileName + ".shp";
+        }
+
+        String[] command = new String[]{
+                "gdaltindex",
+                filePath,
+                inputfile
+        };
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            Process process = processBuilder.start();
+            // 获取命令的输入流和输出流
+            InputStream inputStream = process.getInputStream();
+            InputStream errorStream = process.getErrorStream();
+
+            // 读取命令的输出
+            String output = readStream(inputStream);
+
+            // 读取命令的错误输出
+            String errorOutput = readStream(errorStream);
+            // 输出命令的输出和错误输出
+            System.out.println("命令输出:\n" + output);
+            System.out.println("错误输出:\n" + errorOutput);
+            // 等待命令执行完成
+            int exitCode = process.waitFor();
+            System.out.println("退出码: " + exitCode);
+            return filePath;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void pixelMask(String inputfile, String outputFile, String shpfile) {
+
+        String[] command = new String[]{
+                "gdalwarp",
+                "-cutline",
+                shpfile,
+                "-dstnodata",
+                "0",
+                "-of",
+                "GTiff",
+                "-overwrite",
+                inputfile,
+                outputFile
+        };
+
+        System.out.println(String.valueOf(command));
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            Process process = processBuilder.start();
+            // 获取命令的输入流和输出流
+            InputStream inputStream = process.getInputStream();
+            InputStream errorStream = process.getErrorStream();
+
+            // 读取命令的输出
+            String output = readStream(inputStream);
+
+            // 读取命令的错误输出
+            String errorOutput = readStream(errorStream);
+            // 输出命令的输出和错误输出
+            System.out.println("命令输出:\n" + output);
+            System.out.println("错误输出:\n" + errorOutput);
+            // 等待命令执行完成
+            int exitCode = process.waitFor();
+            System.out.println("退出码: " + exitCode);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }
