@@ -254,7 +254,7 @@ public class GdalOptionTools {
     /**
      * gdalCachPath中生成合并文件
      *
-     * @param shpfiles
+     * @param shpfiles 用于掩膜的shp文件路径
      * @return
      */
     public static String mergeShp(String[] shpfiles) {

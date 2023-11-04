@@ -241,6 +241,12 @@ public class ExeExecution {
         return output.toString();
     }
 
+    /**
+     * 获取当前图像的包围盒的shp范围
+     *
+     * @param inputfile 输入文件
+     * @return
+     */
     public static String getOutBox(String inputfile) {
         // 获取当前日期
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -262,7 +268,7 @@ public class ExeExecution {
             fileName = "outbox(" + sequence + ")";
             filePath = datePath + File.separator + fileName + ".shp";
         }
-
+        //命令构建
         String[] command = new String[]{
                 "gdaltindex",
                 filePath,
@@ -293,8 +299,15 @@ public class ExeExecution {
         return null;
     }
 
+    /**
+     * 像素掩膜进程构建
+     *
+     * @param inputfile  输出文件
+     * @param outputFile 输出文件
+     * @param shpfile    掩膜文件
+     */
     public static void pixelMask(String inputfile, String outputFile, String shpfile) {
-
+        //命令构建
         String[] command = new String[]{
                 "gdalwarp",
                 "-cutline",
@@ -307,18 +320,14 @@ public class ExeExecution {
                 inputfile,
                 outputFile
         };
-
-        System.out.println(String.valueOf(command));
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(command);
             Process process = processBuilder.start();
             // 获取命令的输入流和输出流
             InputStream inputStream = process.getInputStream();
             InputStream errorStream = process.getErrorStream();
-
             // 读取命令的输出
             String output = readStream(inputStream);
-
             // 读取命令的错误输出
             String errorOutput = readStream(errorStream);
             // 输出命令的输出和错误输出
