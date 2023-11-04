@@ -225,7 +225,7 @@ public class GdalOptionTools {
      */
     public static void getMaskArea(String boxAreaPath, String innerAreaPath, String outPath) {
         GDALInitializer.initializeogr();
-
+        GDALInitializer.initialize();
         // 打开第一个Shapefile
         DataSource dataSource1 = ogr.Open(innerAreaPath);
 
@@ -258,6 +258,8 @@ public class GdalOptionTools {
      * @return
      */
     public static String mergeShp(String[] shpfiles) {
+        GDALInitializer.initializeogr();
+        GDALInitializer.initialize();
         try {
             // 获取当前日期
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");

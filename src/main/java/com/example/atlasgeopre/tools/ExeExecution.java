@@ -8,9 +8,6 @@ import java.util.Date;
 
 public class ExeExecution {
 
-    public static String gdalCachPath = "/Users/yang/Documents/xxx项目预处理/data/mask/roadshp/roadshp";
-
-
     /**
      * @param inputFile  输入文件
      * @param outputFile 输出文件
@@ -247,7 +244,7 @@ public class ExeExecution {
      * @param inputfile 输入文件
      * @return
      */
-    public static String getOutBox(String inputfile) {
+    public static String getOutBox(String inputfile, String gdalCachPath) {
         // 获取当前日期
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
         String currentDate = dateFormat.format(new Date());
