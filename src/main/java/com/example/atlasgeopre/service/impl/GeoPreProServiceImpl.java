@@ -25,6 +25,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.ZipOutputStream;
@@ -445,10 +446,10 @@ public class GeoPreProServiceImpl implements GeoPreProService {
         File file = new File(filePath);
         int dotIndex = file.getName().lastIndexOf('.');
         String fileName = file.getName().substring(0, dotIndex);
-        File outParent = new File(outputPath + File.separator + fileName);
-        if (!outParent.exists()) {
-            outParent.mkdir();
-        }
+//        File outParent = new File(outputPath + File.separator + fileName);
+//        if (!outParent.exists()) {
+//            outParent.mkdir();
+//        }
 
 //        if (GeoPreProServiceImpl.getFileExtension(file).equals("tif") && targetFormat.equals("AAIGrid")) {
 //            Dataset imageSet = gdal.Open(filePath, gdalconst.GA_ReadOnly);
@@ -458,26 +459,47 @@ public class GeoPreProServiceImpl implements GeoPreProService {
 //        } else {
 //            ExeExecution.doChangeFormat(filePath, outputPath, fileName, targetFormat, FormatEum.getSuffixValue(targetFormat), 0);
 //        }
+        // 获取当前日期
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        String currentDate = dateFormat.format(new Date());
+        // 创建日期路径
+        String datePath = outputPath + File.separator + currentDate;
+        File dateDirectory = new File(datePath);
+        if (!dateDirectory.exists()) {
+            dateDirectory.mkdirs();
+        }
+        // 文件名以"merge"为开始，后面加递增序号
+        int sequence = 1;
+        String fileoutPath = datePath + File.separator + fileName;
+
+        // 检查文件是否存在，如果存在则增加递增序号
+        while (new File(fileoutPath).exists()) {
+            sequence++;
+            String newfileName = fileName + "(" + sequence + ")";
+            fileoutPath = datePath + File.separator + newfileName;
+        }
+
+        new File(fileoutPath).mkdir();
 
         ProgressReporter progressReporter = new ProgressReporter();
-        GdalOptionTools.doChangeFormat(filePath, outputPath, fileName, targetFormat, FormatEum.getSuffixValue(targetFormat), progressReporter);
+        GdalOptionTools.doChangeFormat(filePath, fileoutPath, fileName, targetFormat, FormatEum.getSuffixValue(targetFormat), progressReporter);
 
         if (progressReporter.getSchedule() >= 100) {
             //将输出的文件打包成压缩包
             try {
-                FileOutputStream fos = new FileOutputStream(outputPath + File.separator + fileName + ".zip");
+                FileOutputStream fos = new FileOutputStream(fileoutPath + ".zip");
                 ZipOutputStream zos = new ZipOutputStream(fos);
-                File directory = new File(outputPath + File.separator + fileName);
+                File directory = new File(fileoutPath);
                 ZipFileTools.compressDirectory(directory, zos);
                 zos.close();
                 fos.close();
-                System.out.println(outputPath + File.separator + fileName + ".zip");
+                System.out.println(fileoutPath + ".zip");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
             res.put("targetFormat", targetFormat);
-            res.put("outputPath", outputPath + File.separator + fileName + ".zip");
+            res.put("outputPath", fileoutPath + ".zip");
             return res;
         } else {
             return null;
@@ -621,6 +643,12 @@ public class GeoPreProServiceImpl implements GeoPreProService {
      */
     @Override
     public boolean pixelMask(String inputFile, String outfile, String maskfiles) {
+
+        File file = new File(outfile);
+        if (!new File(file.getParent()).exists()) {
+            new File(file.getParent()).mkdir();
+        }
+
         //maskfiles为多个shp文件，用“，”隔开
         String[] shpfiles = maskfiles.split(",");
         String outboxshp = ExeExecution.getOutBox(inputFile, gdalCachPath);

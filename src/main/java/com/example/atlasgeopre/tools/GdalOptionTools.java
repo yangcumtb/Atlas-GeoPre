@@ -71,7 +71,7 @@ public class GdalOptionTools {
         if (format.equals("AAIGrid")) {
             //遍历循环波段所有波段
             for (int i = 1; i <= bandCount; i++) {
-                String out = outputPath + "/" + imageName + "/" + imageName + "_band" + String.valueOf(i) + suffix;
+                String out = outputPath + "/" + imageName + "_band" + String.valueOf(i) + suffix;
                 Vector aAIGridwarpOptions = new Vector();    // 创建向量以存储warp操作的参数列表
                 aAIGridwarpOptions.add("-b");
                 aAIGridwarpOptions.add(String.valueOf(i));
@@ -84,7 +84,7 @@ public class GdalOptionTools {
 
         } else {
             Vector warpOptions = new Vector();
-            String out = outputPath + "/" + imageName + "/" + imageName + suffix;
+            String out = outputPath + "/" + imageName + suffix;
             // 设置命令参数
             switch (suffix) {
                 case ".bsq":
@@ -118,6 +118,11 @@ public class GdalOptionTools {
                     warpOptions.add("-of");
                     warpOptions.add(format);
                     break;
+            }
+
+            File outfie = new File(out);
+            if (!new File(outfie.getParent()).exists()) {
+                new File(outfie.getParent()).mkdir();
             }
 
             TranslateOptions translateOptions = new TranslateOptions(warpOptions);

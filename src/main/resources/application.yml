@@ -15,6 +15,10 @@ url:
   tilePath2: /data/data
   #  原盘为甲方2，挂载数据为：行192238-209715；列78643-166024  &  行227191-233017；列393216-419431
   tilePath3: /data/data
+  #  原盘为甲方3，挂载数据为：
+  tilePath4: /data/data
+  #  原盘为甲方4，挂载数据为：
+  tilePath5: /data/data
   notePath: /data/data
   cacheTilePath:
   imageNotePath:

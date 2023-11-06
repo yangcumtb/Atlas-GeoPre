@@ -99,25 +99,4 @@ public class TIleToGeo {
 
         return res;
     }
-
-
-    public static void main(String[] args) {
-//        double[] area = new double[]{120.1, 40.3, 122.1, 38.5};
-//
-//        HashMap mymap = getTileFiles(geTileArea(area, 18), "/tiledata");
-//
-//        // 使用迭代器遍历HashMap并打印键值对
-//        Iterator<Map.Entry<String, String>> iterator = mymap.entrySet().iterator();
-//        while (iterator.hasNext()) {
-//            Map.Entry<String, String> entry = iterator.next();
-//            String key = entry.getKey();
-//            String value = entry.getValue();
-//            System.out.println(key + ": " + value);
-//        }
-        double[][] c = new double[][]{{29.13830492, 179.18715234}, {48.90781826, 177.66256281}, {50.38411108, 196.80580766}, {30.61459774, 198.33039719}};
-        double[][] a = getGeoAreaFromtile(439369, 225613, 19, c);
-        System.out.println(Arrays.deepToString(a));
-    }
-
-
 }
