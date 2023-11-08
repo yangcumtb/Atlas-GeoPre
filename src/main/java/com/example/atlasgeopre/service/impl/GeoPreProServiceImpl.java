@@ -41,6 +41,12 @@ public class GeoPreProServiceImpl implements GeoPreProService {
     @Value("${url.tilePath3}")
     private String tilePath3;
 
+    @Value("${url.tilePath4")
+    private String tilePath4;
+
+    @Value("${url.tilePath5}")
+    private String tilePath5;
+
     @Value("${url.notePath}")
     private String notePath;
 
@@ -586,15 +592,46 @@ public class GeoPreProServiceImpl implements GeoPreProService {
      * @return
      */
     public String get19TilePath(int[] cor) {
-        if ((cor[0] >= 192238 && cor[0] <= 209715 && cor[1] >= 78643 && cor[1] <= 166024) ||
-                (cor[0] >= 227191 && cor[0] <= 233017 && cor[1] >= 393216 && cor[1] <= 419431)) {
-            return tilePath3;
-        } else if ((cor[0] >= 250493 && cor[0] <= 262144 && cor[1] >= 393216 && cor[1] <= 454383) ||
-                (cor[0] >= 273794 && cor[0] <= 326224 && cor[1] >= 419431 && cor[1] <= 489336)) {
-            return tilePath2;
-        } else {
-            return tilePath; // 不在任何区间范围内
+        // 新建磁盘区间的起始列、结束列、起始行和结束行
+        int[] columns = {445644, 471858, 436906, 480596, 419430, 445643, 419430, 463120,
+                419430, 463120, 428168, 489334, 463121, 489334, 471859, 480596, 393216, 419429, 393216, 454380};
+        int[] rows = {273794, 279619, 279620, 285444, 291271, 297095, 297096, 302920,
+                302921, 308746, 308747, 314571, 314572, 320397, 320398, 326222, 250493, 256317, 256318, 262143};
+        // 检查col和row是否在任何一个区间内
+        for (int i = 0; i < columns.length; i += 2) {
+            if (columns[i] <= cor[1] && cor[1] <= columns[i + 1] && rows[i] <= cor[0] && cor[0] <= rows[i + 1]) {
+                return tilePath2;
+            }
         }
+        //甲方2范围
+        int[] columns2 = {78643, 166023, 148548, 166023, 78643, 122332};
+        int[] rows2 = {192238, 198063, 198064, 203888, 203889, 209714};
+        // 检查col和row是否在任何一个区间内
+        for (int i = 0; i < columns2.length; i += 2) {
+            if (columns2[i] <= cor[1] && cor[1] <= columns2[i + 1] && rows2[i] <= cor[0] && cor[0] <= rows2[i + 1]) {
+                return tilePath3;
+            }
+        }
+        //甲方3范围
+        int[] columns3 = {428168, 480596, 445644, 489334, 463121, 489334, 471859, 489334, 393216, 419429, 393216, 445643, 367001, 445643, 367001, 454381, 375739, 384476, 419430, 454381};
+        int[] rows3 = {285445, 291270, 291271, 297095, 297096, 302920, 302921, 308746, 227191, 233015, 233016, 238841, 238842, 244666, 244667, 250492, 250493, 256317, 250493, 256317};
+        // 检查col和row是否在任何一个区间内
+        for (int i = 0; i < columns3.length; i += 2) {
+            if (columns3[i] <= cor[1] && cor[1] <= columns3[i + 1] && rows3[i] <= cor[0] && cor[0] <= rows3[i + 1]) {
+                return tilePath4;
+            }
+        }
+        //甲方4范围
+        // 新区间的起始列、结束列、起始行和结束行
+        int[] columns4 = {78643, 157285, 463121, 480596, 463121, 480596, 445644, 471858, 445644, 471858, 445644, 454381, 375739, 410691, 445644, 454381, 375739, 393215, 367001, 393215};
+        int[] rows4 = {198064, 203888, 192238, 198063, 198064, 203888, 203889, 209714, 209715, 215539, 215540, 221365, 221366, 227190, 221366, 227190, 227191, 233015, 233016, 238841};
+        // 检查col和row是否在任何一个区间内
+        for (int i = 0; i < columns4.length; i += 2) {
+            if (columns4[i] <= cor[1] && cor[1] <= columns4[i + 1] && rows4[i] <= cor[0] && cor[0] <= rows4[i + 1]) {
+                return tilePath5;
+            }
+        }
+        return tilePath;
     }
 
 
