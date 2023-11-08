@@ -3,6 +3,7 @@ package com.example.atlasgeopre.tools;
 import com.example.atlasgeopre.common.config.GDALInitializer;
 import org.gdal.gdal.*;
 import org.gdal.gdal.Driver;
+import org.gdal.gdalconst.gdalconst;
 import org.gdal.gdalconst.gdalconstConstants;
 import org.gdal.ogr.*;
 import org.gdal.osr.SpatialReference;
@@ -44,7 +45,6 @@ import static org.gdal.ogr.ogrConstants.wkbPolygon;
 
 public class GdalOptionTools {
 
-    public static String gdalCachPath = "/Users/yang/Documents/xxx项目预处理/data/mask/roadshp/roadshp";
 
     /**
      * 格式转换
@@ -194,41 +194,36 @@ public class GdalOptionTools {
 //        gdal.GDALDestroyDriverManager();
     }
 
-    /**
-     * 像素掩膜
-     *
-     * @param inputfile        输入文件
-     * @param outputFile       输出文件
-     * @param shpfile          shp文件
-     * @param progressReporter 回调
-     */
-    public static void pixelMask(String inputfile, String outputFile, String shpfile, ProgressReporter progressReporter) {
-        GDALInitializer.initialize();
-        Dataset inputDataset = gdal.Open(inputfile);
-        Dataset[] inputs = new Dataset[]{inputDataset};
-        Vector warpOptions = new Vector();
-        warpOptions.add("-cutline");
-        warpOptions.add(shpfile);
-        warpOptions.add("-dstnodata");
-        warpOptions.add("0");
-        warpOptions.add("-dstalpha");
-        warpOptions.add("-of");
-        warpOptions.add("GTiff");
-        warpOptions.add("-overwrite");
-        WarpOptions warpOptions1 = new WarpOptions(warpOptions);
-        gdal.Warp(outputFile, inputs, warpOptions1, progressReporter);
-        warpOptions1.delete();
-        inputDataset.delete();
-    }
 
     /**
      * 反算掩膜区域
      *
      * @param boxAreaPath   外部
      * @param innerAreaPath 内部
-     * @param outPath       输出
      */
-    public static void getMaskArea(String boxAreaPath, String innerAreaPath, String outPath) {
+    public static String getMaskArea(String boxAreaPath, String innerAreaPath, String gdalCachPath) {
+        // 获取当前日期
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        String currentDate = dateFormat.format(new Date());
+        // 创建日期路径
+        String datePath = gdalCachPath + File.separator + currentDate;
+        File dateDirectory = new File(datePath);
+        if (!dateDirectory.exists()) {
+            dateDirectory.mkdirs();
+        }
+        // 文件名以"merge"为开始，后面加递增序号
+        int sequence = 1;
+        String fileName = "maskarea";  // 初始文件名
+        String filePath = datePath + File.separator + fileName + ".shp";
+
+        // 检查文件是否存在，如果存在则增加递增序号
+        while (new File(filePath).exists()) {
+            sequence++;
+            fileName = "maskarea(" + sequence + ")";
+            filePath = datePath + File.separator + fileName + ".shp";
+        }
+
+
         GDALInitializer.initializeogr();
         GDALInitializer.initialize();
         // 打开第一个Shapefile
@@ -243,8 +238,9 @@ public class GdalOptionTools {
         // 获取第二个Shapefile的第一个图层
         Layer layer2 = dataSource2.GetLayer(0);
 
+
         // 创建一个新的数据源和图层用于存储交集结果
-        DataSource outputDataSource = ogr.GetDriverByName("ESRI Shapefile").CreateDataSource(outPath);
+        DataSource outputDataSource = ogr.GetDriverByName("ESRI Shapefile").CreateDataSource(filePath);
         Layer outputLayer = outputDataSource.CreateLayer("intersection", null);
 
         // 进行两个Shapefile的交集操作
@@ -254,6 +250,8 @@ public class GdalOptionTools {
         dataSource1.delete();
         dataSource2.delete();
         outputDataSource.delete();
+
+        return filePath;
     }
 
     /**
@@ -262,7 +260,7 @@ public class GdalOptionTools {
      * @param shpfiles 用于掩膜的shp文件路径
      * @return
      */
-    public static String mergeShp(String[] shpfiles) {
+    public static String mergeShp(String[] shpfiles, String gdalCachPath) {
         GDALInitializer.initializeogr();
         GDALInitializer.initialize();
         try {
@@ -322,5 +320,117 @@ public class GdalOptionTools {
             e.printStackTrace();
         }
         return null;
+    }
+
+
+    /**
+     * 像素掩膜
+     *
+     * @param inputfile  掩膜文件
+     * @param outputFile 输出路径
+     * @param shpfile    掩膜shp
+     */
+    public static void pixelMask(String inputfile, String outputFile, String shpfile) {
+        GDALInitializer.initialize();
+        gdal.SetConfigOption("GDAL_FILENAME_IS_UTF8", "YES");
+        Dataset dataset = gdal.Open(inputfile);
+
+        Dataset[] inputs = new Dataset[]{dataset};
+
+        Vector warpOptions = new Vector();
+        warpOptions.add("-dstnodata");
+        warpOptions.add("0");
+        warpOptions.add("-of");
+        warpOptions.add("GTiff");
+        warpOptions.add("-overwrite");
+        warpOptions.add("-cutline");
+        warpOptions.add(shpfile);
+
+        WarpOptions warpOptions1 = new WarpOptions(warpOptions);
+        Dataset dataset1 = gdal.Warp(outputFile, inputs, warpOptions1);
+
+        dataset.delete();
+        dataset1.delete();
+        warpOptions1.delete();
+    }
+
+    public static String getOutBox(String inputfile, String gdalCachPath) {
+        // 获取当前日期
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        String currentDate = dateFormat.format(new Date());
+        // 创建日期路径
+        String datePath = gdalCachPath + File.separator + currentDate;
+        File dateDirectory = new File(datePath);
+        if (!dateDirectory.exists()) {
+            dateDirectory.mkdirs();
+        }
+        // 文件名以"merge"为开始，后面加递增序号
+        int sequence = 1;
+        String fileName = "outbox";  // 初始文件名
+        String filePath = datePath + File.separator + fileName + ".shp";
+
+        // 检查文件是否存在，如果存在则增加递增序号
+        while (new File(filePath).exists()) {
+            sequence++;
+            fileName = "outbox(" + sequence + ")";
+            filePath = datePath + File.separator + fileName + ".shp";
+        }
+
+        GDALInitializer.initializeogr();
+        GDALInitializer.initialize();
+
+        try {
+            // 打开 TIFF 文件
+            Dataset tiffDataset = gdal.Open(inputfile, gdalconst.GA_ReadOnly);
+
+            if (tiffDataset != null) {
+                // 获取 TIFF 文件的包围盒
+                double[] adfGeoTransform = new double[6];
+                tiffDataset.GetGeoTransform(adfGeoTransform);
+
+                // 创建 Shapefile 数据源
+                org.gdal.ogr.Driver shpDriver = ogr.GetDriverByName("ESRI Shapefile");
+                DataSource shpDataSource = shpDriver.CreateDataSource(filePath);
+
+                if (shpDataSource != null) {
+                    // 创建一个包含包围盒的多边形
+                    Layer shpLayer = shpDataSource.CreateLayer("BoundingBox", null, ogr.wkbPolygon);
+
+                    FieldDefn fieldDefn = new FieldDefn("ID", ogrConstants.OFTInteger);
+                    shpLayer.CreateField(fieldDefn);
+
+                    Feature feature = new Feature(shpLayer.GetLayerDefn());
+                    Geometry geometry = new Geometry(ogr.wkbPolygon);
+
+                    // 创建一个线性环
+                    Geometry ringGeometry = new Geometry(ogr.wkbLinearRing);
+                    ringGeometry.AddPoint(adfGeoTransform[0], adfGeoTransform[3]);
+                    ringGeometry.AddPoint(adfGeoTransform[0] + adfGeoTransform[1] * tiffDataset.getRasterXSize(), adfGeoTransform[3]);
+                    ringGeometry.AddPoint(adfGeoTransform[0] + adfGeoTransform[1] * tiffDataset.getRasterXSize(), adfGeoTransform[3] + adfGeoTransform[5] * tiffDataset.getRasterYSize());
+                    ringGeometry.AddPoint(adfGeoTransform[0], adfGeoTransform[3] + adfGeoTransform[5] * tiffDataset.getRasterYSize());
+                    ringGeometry.AddPoint(adfGeoTransform[0], adfGeoTransform[3]);
+
+                    geometry.AddGeometryDirectly(ringGeometry);
+                    feature.SetGeometry(geometry);
+
+                    feature.SetField("ID", 1);
+                    shpLayer.CreateFeature(feature);
+
+                    // 关闭数据源
+                    shpDataSource.delete();
+                } else {
+                    System.err.println("Failed to create Shapefile data source.");
+                }
+                // 关闭 TIFF 数据集
+                tiffDataset.delete();
+            } else {
+                System.err.println("Failed to open TIFF file.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return filePath;
+
     }
 }

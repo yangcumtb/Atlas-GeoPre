@@ -53,6 +53,7 @@ public class GeoPreProServiceImpl implements GeoPreProService {
     @Value("${url.gdalCachPath}")
     private String gdalCachPath;
 
+
     /**
      * 获取tiff文件元数据
      *
@@ -688,11 +689,11 @@ public class GeoPreProServiceImpl implements GeoPreProService {
 
         //maskfiles为多个shp文件，用“，”隔开
         String[] shpfiles = maskfiles.split(",");
-        String outboxshp = ExeExecution.getOutBox(inputFile, gdalCachPath);
+        String outboxshp = GdalOptionTools.getOutBox(inputFile, gdalCachPath);
 
-        String mergeshp = GdalOptionTools.mergeShp(shpfiles);
-        GdalOptionTools.getMaskArea(outboxshp, mergeshp, mergeshp);
-        ExeExecution.pixelMask(inputFile, outfile, mergeshp);
+        String mergeshp = GdalOptionTools.mergeShp(shpfiles, gdalCachPath);
+        String maskfile = GdalOptionTools.getMaskArea(outboxshp, mergeshp, gdalCachPath);
+        GdalOptionTools.pixelMask(inputFile, outfile, maskfile);
         return true;
     }
 }
