@@ -127,14 +127,13 @@ public class GdalOptionTools {
             }
 
             TranslateOptions translateOptions = new TranslateOptions(warpOptions);
-            Dataset outputDataset =gdal.Translate(out, inputDataset, translateOptions, progressReporter);
+            Dataset outputDataset = gdal.Translate(out, inputDataset, translateOptions, progressReporter);
             outputDataset.delete();
             translateOptions.delete();
         }
         band.delete();
         driver.delete();
         inputDataset.delete();
-//        gdal.GDALDestroyDriverManager();
     }
 
 
@@ -161,11 +160,10 @@ public class GdalOptionTools {
         warpOptions.add(targetEPSG);
 
         WarpOptions warpOptions1 = new WarpOptions(warpOptions);
-        gdal.Warp(outputPath, inputs, warpOptions1, progressReporter);
-
+        Dataset dataset = gdal.Warp(outputPath, inputs, warpOptions1, progressReporter);
+        dataset.delete();
         inputDataset.delete();
         warpOptions1.delete();
-//        gdal.GDALDestroyDriverManager();
     }
 
     /**
@@ -192,11 +190,10 @@ public class GdalOptionTools {
         warpOptions.add(String.valueOf(height));
 
         WarpOptions warpOptions1 = new WarpOptions(warpOptions);
-        gdal.Warp(outputFile, inputs, warpOptions1, progressReporter);
-
+        Dataset outdata = gdal.Warp(outputFile, inputs, warpOptions1, progressReporter);
+        outdata.delete();
         warpOptions1.delete();
         inputDataset.delete();
-//        gdal.GDALDestroyDriverManager();
     }
 
 
@@ -252,6 +249,9 @@ public class GdalOptionTools {
         layer1.SymDifference(layer2, outputLayer);
 
         // 释放资源
+        layer1.delete();
+        layer2.delete();
+        outputLayer.delete();
         dataSource1.delete();
         dataSource2.delete();
         outputDataSource.delete();
@@ -308,6 +308,7 @@ public class GdalOptionTools {
 
                     // 将每个要素的几何对象与之前的联合几何对象进行联合
                     unionGeometry = unionGeometry.Union(sourceGeometry);
+                    sourceGeometry.delete();
                 }
                 // 创建一个新要素，并将联合后的几何对象添加到输出图层
                 layer2.delete();
@@ -317,8 +318,10 @@ public class GdalOptionTools {
             outputFeature.SetGeometry(unionGeometry);
             outputLayer.CreateFeature(outputFeature);
             outputLayer.delete();
-            outputLayer.delete();
+            unionGeometry.delete();
+            outputFeature.delete();
             outputDataSource.delete();
+            spatialReference.delete();
             return filePath;
 
         } catch (Exception e) {
@@ -422,12 +425,18 @@ public class GdalOptionTools {
                     shpLayer.CreateFeature(feature);
 
                     // 关闭数据源
+                    ringGeometry.delete();
+                    geometry.delete();
+                    feature.delete();
+                    shpLayer.delete();
                     shpDataSource.delete();
                 } else {
                     System.err.println("Failed to create Shapefile data source.");
                 }
                 // 关闭 TIFF 数据集
                 tiffDataset.delete();
+                shpDriver.delete();
+
             } else {
                 System.err.println("Failed to open TIFF file.");
             }
