@@ -9,16 +9,11 @@ spring:
 server:
   port: 9070
 url:
-  #tilepath 0-17级别数据，以及台湾地区0.3m数据（91位图切分方式）
-  tilePath: /data/data
-  #  原盘为新加卷，挂载数据为：行250493-262144；列393216-454383  &  行419431-489336；列273794-326224
-  tilePath2: /data/data
-  #  原盘为甲方2，挂载数据为：行192238-209715；列78643-166024  &  行227191-233017；列393216-419431
-  tilePath3: /data/data
-  #  原盘为甲方3，挂载数据为：
-  tilePath4: /data/data
-  #  原盘为甲方4，挂载数据为：
-  tilePath5: /data/data
+  tilePath: /data/data/tiledata
+  tilePath2: /data/data/tiledata20_1
+  tilePath3: /data/data/tiledata20_2
+  tilePath4: /data/data/tiledata20_3
+  tilePath5: /data/data/tiledata20_4
   notePath: /data/data
   cacheTilePath:
   imageNotePath:

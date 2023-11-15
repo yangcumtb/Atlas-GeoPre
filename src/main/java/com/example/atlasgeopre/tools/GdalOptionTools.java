@@ -80,6 +80,7 @@ public class GdalOptionTools {
                 TranslateOptions translateOptions = new TranslateOptions(aAIGridwarpOptions);
                 Dataset outputDataset = gdal.Translate(out, inputDataset, translateOptions, progressReporter);
                 outputDataset.delete();
+                translateOptions.delete();
             }
 
         } else {
@@ -126,8 +127,12 @@ public class GdalOptionTools {
             }
 
             TranslateOptions translateOptions = new TranslateOptions(warpOptions);
-            gdal.Translate(out, inputDataset, translateOptions, progressReporter);
+            Dataset outputDataset =gdal.Translate(out, inputDataset, translateOptions, progressReporter);
+            outputDataset.delete();
+            translateOptions.delete();
         }
+        band.delete();
+        driver.delete();
         inputDataset.delete();
 //        gdal.GDALDestroyDriverManager();
     }
