@@ -44,5 +44,9 @@ public class TiffMetaData {
     //epsg代码
     private String epsg;
 
+    private Double resolutionX;
+
+    private Double resolutionY;
+
 
 }

@@ -25,6 +25,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -52,6 +53,9 @@ public class GeoPreProServiceImpl implements GeoPreProService {
 
     @Value("${url.gdalCachPath}")
     private String gdalCachPath;
+
+    @Value("${url.earthC}")
+    private Double earthC;
 
 
     /**
@@ -147,6 +151,23 @@ public class GeoPreProServiceImpl implements GeoPreProService {
                 break;
         }
         spatialRef.delete();
+
+        // 创建DecimalFormat对象，指定保留两位小数的格式
+        DecimalFormat df = new DecimalFormat("#.##");
+
+        // 使用format方法进行四舍五入
+        String roundedNumber = df.format(earthC / 360.0 * geotransform[1]);
+
+        // 将字符串转换为double类型
+        double result = Double.parseDouble(roundedNumber);
+
+        String roundedNumbery = df.format(earthC / 360.0 * geotransform[5]);
+        double resulty = Double.parseDouble(roundedNumbery);
+
+        //计算xy米级分辨率
+        tiffMetaData.setResolutionX(result);
+        tiffMetaData.setResolutionY(Math.abs(resulty));
+
         return tiffMetaData;
     }
 

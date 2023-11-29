@@ -126,7 +126,8 @@ public class GdalOptionTools {
             }
 
             TranslateOptions translateOptions = new TranslateOptions(warpOptions);
-            gdal.Translate(out, inputDataset, translateOptions, progressReporter);
+            Dataset res = gdal.Translate(out, inputDataset, translateOptions, progressReporter);
+            res.delete();
         }
         inputDataset.delete();
 //        gdal.GDALDestroyDriverManager();

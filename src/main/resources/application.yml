@@ -20,6 +20,8 @@ url:
   #  原盘为甲方4，挂载数据为：
   tilePath5: /data/data
   notePath: /data/data
+  earthC: 40075016.686
   cacheTilePath:
   imageNotePath:
-  gdalCachPath: /Users/yang/Documents/xxx项目预处理/data/mask/roadshp/roadshp
+  gdalCachPath: D:\data\cc\158\20231108
+
