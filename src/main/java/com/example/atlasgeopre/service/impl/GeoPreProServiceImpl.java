@@ -66,9 +66,6 @@ public class GeoPreProServiceImpl implements GeoPreProService {
      */
     @Override
     public TiffMetaData getMetadata(String filePath) {
-//        System.setProperty("PROJ_LIB", "D:\\Program Files\\Java\\release-1930-x64-gdal-3-6-3-mapserver-8-0-0\\bin\\proj7\\share");
-//        File file = new File(imagePath);
-//        System.out.println("PROJ_LIB: " + System.getenv("PROJ_LIB"));
         GDALInitializer.initialize();
         File file = new File(filePath);
         // 获取文件的修改时间
@@ -87,7 +84,6 @@ public class GeoPreProServiceImpl implements GeoPreProService {
         Dataset imageSet = gdal.Open(filePath);
         //获取空间仿射变换参数
         double[] geotransform = imageSet.GetGeoTransform();
-        System.out.println(Arrays.toString(geotransform));
         //判断数据的坐标系是投影坐标系还是地理坐标系
         if (imageSet.GetProjection().contains("PROJCS")) {
             //投影坐标系需要做左上角顶点的坐标转换，以及分辨率转换
@@ -447,7 +443,6 @@ public class GeoPreProServiceImpl implements GeoPreProService {
             ZipFileTools.compressDirectory(directory, zos);
             zos.close();
             fos.close();
-            System.out.println(outputFilePath + File.separator + fileName + ".zip");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -521,7 +516,6 @@ public class GeoPreProServiceImpl implements GeoPreProService {
                 ZipFileTools.compressDirectory(directory, zos);
                 zos.close();
                 fos.close();
-                System.out.println(fileoutPath + ".zip");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
