@@ -108,10 +108,29 @@ public class GeoPreProServiceImpl implements GeoPreProService {
             double resolutionInDegreesx = resolutionInMetersx / oneDegreeLatLength;
             double resolutionInDegreesy = resolutionInMetersy / oneDegreeLatLength;
 
-            tiffMetaData.setAffineTransformation(new double[]{point.GetY(), point.GetX(), resolutionInDegreesx, resolutionInDegreesy, geotransform[2], geotransform[4]});
+            tiffMetaData.setAffineTransformation(new double[]{point.GetY(), point.GetX(), resolutionInDegreesx, resolutionInDegreesy, geotransform[1], geotransform[5], geotransform[2], geotransform[4]});
 
         } else {
-            tiffMetaData.setAffineTransformation(new double[]{geotransform[0], geotransform[3], geotransform[1], geotransform[5], geotransform[2], geotransform[4]});
+            /**
+             * 计算米级分辨率
+             */
+            SpatialReference projSRS = new SpatialReference(imageSet.GetProjection());
+            SpatialReference latLonSRS = new SpatialReference();
+
+            latLonSRS.ImportFromEPSG(3857); // 设置地理坐标系为WGS 84
+            CoordinateTransformation transform = new CoordinateTransformation(projSRS, latLonSRS);
+            double[] leftUp = {geotransform[3], geotransform[0]};
+            double[] rightDown = {geotransform[3] + geotransform[5] * imageSet.getRasterYSize(), geotransform[0] + geotransform[1] * imageSet.getRasterXSize()};
+            double[] newleftUp = new double[3];
+            double[] newrightdown = new double[3];
+            transform.TransformPoint(newleftUp, leftUp[0], leftUp[1]);
+            transform.TransformPoint(newrightdown, rightDown[0], rightDown[1]);
+
+            double rexX = (newrightdown[0] - newleftUp[0]) / imageSet.getRasterXSize();
+
+            double rexY = (newrightdown[1] - newleftUp[1]) / imageSet.getRasterYSize();
+
+            tiffMetaData.setAffineTransformation(new double[]{geotransform[0], geotransform[3], geotransform[1], geotransform[5], rexX, rexY, geotransform[2], geotransform[4]});
         }
 
         //获取图像的压缩方式
@@ -147,23 +166,6 @@ public class GeoPreProServiceImpl implements GeoPreProService {
                 break;
         }
         spatialRef.delete();
-
-        // 创建DecimalFormat对象，指定保留两位小数的格式
-        DecimalFormat df = new DecimalFormat("#.##");
-
-        // 使用format方法进行四舍五入
-        String roundedNumber = df.format(earthC / 360.0 * geotransform[1]);
-
-        // 将字符串转换为double类型
-        double result = Double.parseDouble(roundedNumber);
-
-        String roundedNumbery = df.format(earthC / 360.0 * geotransform[5]);
-        double resulty = Double.parseDouble(roundedNumbery);
-
-        //计算xy米级分辨率
-        tiffMetaData.setResolutionX(result);
-        tiffMetaData.setResolutionY(Math.abs(resulty));
-
         return tiffMetaData;
     }
 
@@ -380,6 +382,8 @@ public class GeoPreProServiceImpl implements GeoPreProService {
 
                 } else if (color == gdalconst.GCI_AlphaBand) {
                     pattn.append(bandName).append("透明通道图像").append("\n");
+                } else {
+                    pattn.append(bandName).append("色彩未定义").append("\n");
                 }
             }
         }
