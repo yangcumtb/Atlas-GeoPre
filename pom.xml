@@ -11,7 +11,7 @@
     <groupId>com.example</groupId>
     <artifactId>Atlas-GeoPre</artifactId>
     <version>1.0</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>Atlas-GeoPre</name>
     <description>Atlas-GeoPre</description>
     <properties>
@@ -52,7 +52,7 @@
         <dependency>
             <groupId>org.gdal</groupId>
             <artifactId>gdal</artifactId>
-            <version>3.2.1</version>
+            <version>3.6.3</version>
         </dependency>
 
         <dependency>
@@ -73,6 +73,33 @@
             <artifactId>springfox-swagger2</artifactId>
             <version>3.0.0</version>
         </dependency>
+
+        <!-- 做断点下载使用-->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+
+
     </dependencies>
 
     <build>
