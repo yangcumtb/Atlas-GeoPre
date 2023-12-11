@@ -130,6 +130,15 @@ public class GeoPreProServiceImpl implements GeoPreProService {
 
             double rexY = (newrightdown[1] - newleftUp[1]) / imageSet.getRasterYSize();
 
+            //如果是长光数据，分辨率设置为0.75
+            File tifFile = new File(filePath);
+            if (tifFile.getName().contains("_CG")) {
+                String[] names = tifFile.getName().split("_");
+                if (names.length == 4) {
+                    rexX = 0.75000000;
+                    rexY = 0.75000000;
+                }
+            }
             tiffMetaData.setAffineTransformation(new double[]{geotransform[0], geotransform[3], geotransform[1], geotransform[5], rexX, rexY, geotransform[2], geotransform[4]});
         }
 
